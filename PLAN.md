@@ -4,12 +4,10 @@
 Split the projet into six parts and each of us will take two parts. Deadline to finish the parts will be by Monday and then we can spend the days after putting things together and testing before the Friday submission date. 
 
 
-1. Overlay communication network based on Actiity #1
-2.  
-3. 
-4. 
-5. Secure TLS communication 
-6. Installing/setting up CA
+1. Overlay communication network based on Actiity #1 
+2. Secure TLS communication  
+3. Installing/setting up CA
+4. Writing the Report 
 
 # Useful Tools 
 
