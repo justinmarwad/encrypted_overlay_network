@@ -31,7 +31,7 @@ def connect():
 
 # main driver function
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", ssl_context='adhoc', debug=True)
 
 
 # test:  curl -X POST http://localhost:5000 -d '{"client_name": "client1", "client_ip": "0.0.0.0"}'
