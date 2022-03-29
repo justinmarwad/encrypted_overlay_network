@@ -1,12 +1,34 @@
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import unpad
 from json import dumps, loads
 from requests import post as post_request
 from socket import socket, AF_INET, SOCK_STREAM 
 
 
+## OUR CLIENT CODE ##
+
+class Client: 
+    def __init__(self, name="Rick_Astley", server="https://127.0.0.1:5000"): 
+        self.name=name 
+        self.server=server 
+
+    def get_client_list(self, client_ip="127.0.0.1"): 
+        """ Method to get a list of clients from the server. """
+        
+        response = post_request(self.server, data=dumps({
+            "client_name": self.name, 
+            "client_ip": client_ip
+        }))
+
+    def send(self, address="127.0.0.1", message="ping"): 
+        """ Method to send message to another client. """
+        pass
+
+    def recieve(self): 
+        """ Method to recieve message to another client. """
+        pass
+
+
+
 ## RECEIVER STARTER CODE ##
- 
 class Receiver:
     def __init__(self, server, username, password):
         """
