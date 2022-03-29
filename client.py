@@ -5,7 +5,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 
 ## OUR CLIENT CODE ##
 class Client: 
-    """ Main client code. """
+    """ Main client code..."""
     def __init__(self, name="Rick_Astley", server="https://127.0.0.1:5000"): 
         self.name=name 
         self.server=server 
