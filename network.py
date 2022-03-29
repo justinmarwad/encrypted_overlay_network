@@ -3,7 +3,7 @@ from flask import Flask, request
 app = Flask(__name__)
   
 global clients 
-clients = [{"client_name": "client_test", "client_ip": "127.0.0.1"}] # global list of al connected clients 
+clients = [] # global list of al connected clients 
 
 @app.route('/', methods=["GET", "POST"])
 def connect():

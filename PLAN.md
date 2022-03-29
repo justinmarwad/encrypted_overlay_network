@@ -9,6 +9,13 @@ Split the projet into six parts and each of us will take two parts. Deadline to 
 3. Implement TLS on both client.py & network.py (Manoj between Tuesday 6:30 PM to Wednesday evening) 
 4. Write the report (all of us Friday)
 
+# Next Steps
+
+Parts 1 and 2 are done, we must start on part 3. Here are the next steps: 
+
+1. Setup client-side TLS and give clients public and private keys 
+2. Setup client.py to use certificates during communication 
+
 # Useful Tools 
 
 1. Use the Python socket library
