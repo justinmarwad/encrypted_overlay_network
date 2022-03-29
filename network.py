@@ -3,7 +3,7 @@ from flask import Flask, request
 app = Flask(__name__)
   
 global clients 
-clients = [] # global list of al connected clients 
+clients = [{"client_name": "client_test", "client_ip": "127.0.0.1"}] # global list of al connected clients 
 
 @app.route('/', methods=["GET", "POST"])
 def connect():
@@ -23,7 +23,10 @@ def connect():
 
     ## Add client to list of clients
 
-    clients.append({"client_name": client_name, "client_ip": client_ip})
+    if client_name in clients: 
+        print("[INFO] Client already exists.")
+    else:
+        clients.append({"client_name": client_name, "client_ip": client_ip})
 
     ## Return response to client (Flask will automatically convert Python dict to json)
     return(response)
