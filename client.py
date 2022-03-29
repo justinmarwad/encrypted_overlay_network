@@ -4,11 +4,22 @@ from socket import socket, AF_INET, SOCK_STREAM
 
 
 ## OUR CLIENT CODE ##
-
 class Client: 
+    """ Main client code. """
     def __init__(self, name="Rick_Astley", server="https://127.0.0.1:5000"): 
         self.name=name 
         self.server=server 
+
+    def run(self): 
+        """ Main method: this is where the magic happens!"""
+
+        clients = self.get_client_list()
+
+        for client in clients: 
+            self.send()
+
+            self.recieve()
+        
 
     def get_client_list(self, client_ip="127.0.0.1"): 
         """ Method to get a list of clients from the server. """
@@ -26,6 +37,8 @@ class Client:
         """ Method to recieve message to another client. """
         pass
 
+if __name__ == '__main__':
+    Client().run()
 
 
 ## RECEIVER STARTER CODE ##
@@ -109,10 +122,10 @@ class Receiver:
         print(f'{username} ({ip_addr}) - {message}')
 
 
-if __name__ == '__main__':
-    receiver = Receiver(server='http://192.168.7.83:8080', username='jmarwad',
-                        password='1qazxsW@1')
-    receiver.receive_messages()
+# if __name__ == '__main__':
+#     receiver = Receiver(server='http://192.168.7.83:8080', username='jmarwad',
+#                         password='1qazxsW@1')
+#     receiver.receive_messages()
 
 
 from Crypto.Cipher import AES
@@ -214,7 +227,7 @@ class Sender:
         sock.close()
 
 
-if __name__ == '__main__':
-    sender = Sender(server='http://192.168.7.83:8080', username='snarain',
-                    password='1qazxsW@1')
-    sender.send_message(receiver='snarain', message='Hello')
+# if __name__ == '__main__':
+#     sender = Sender(server='http://192.168.7.83:8080', username='snarain',
+#                     password='1qazxsW@1')
+#     sender.send_message(receiver='snarain', message='Hello')
