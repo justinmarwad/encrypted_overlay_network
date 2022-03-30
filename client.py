@@ -38,8 +38,6 @@ class Client:
         else:
             raise Exception(f"[ERROR] Could not recieve information from the server {self.server}.")
 
-
-
     def run(self): 
         """ Main method: this is where the magic happens!"""
         clients = self.get_client_list()
@@ -86,48 +84,19 @@ class Client:
 
             with context.wrap_socket(sock, server_side=True) as tls_socket:
                 conn, addr = tls_socket.accept()
-
-                connstream = ssl.wrap_socket(
-                    conn,
-                    server_side=True,
-                    certfile=self.certfile,
-                    keyfile=self.keyfile
-                )
+                connstream = ssl.wrap_socket(conn, server_side=True, certfile=self.certfile, keyfile=self.keyfile)
                 
                 try:
-                    deal_with_client(connstream)
+                    data = tls_socket.recv(2048)
+                    print(data)
+                    # message = loads(data.decode())
+                    
+                    tls_socket.send(b"pong") 
+
                 finally:
                     connstream.shutdown(socket.SHUT_RDWR)
                     connstream.close()
 
-                data = tls_socket.recv(2048)
-                print(data)
-                # message = loads(data.decode())
-                
-                tls_socket.send(b"pong") 
-
-        # context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        # context.load_cert_chain(certfile="cert.pem", keyfile=self.client_pem_key)
-
-        # s = socket.socket()
-        # s.bind(("0.0.0.0", self.port))
-        # s.listen(10)
-
-        # while True:
-        #     temp_socket, fromaddr = s.accept()
-        #     tls_socket = context.wrap_socket(temp_socket, server_side=True)
-        #     try:
-        #         data = tls_socket.recv(1024)
-        #         while data:
-        #             print(data)
-        #             data = tls_socket.recv(1024)
-        #             # message = loads(data.decode())
-
-        #         tls_socket.send(b"pong") 
-
-        #     finally:
-        #         tls_socket.shutdown(socket.SHUT_RDWR)
-        #         tls_socket.close()
 
 if __name__ == '__main__':
     Client().run(name="client1")

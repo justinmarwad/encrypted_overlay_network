@@ -13,8 +13,9 @@ def connect():
 
     client_name = content.get("client_name") 
     client_ip   = content.get("client_ip")
+    client_key   = content.get("client_key")
 
-    print(f"{client_name}: {client_ip}") 
+    print(f"Connected {client_name}@{client_ip} - {client_key}") 
 
     ## Create response 
     response = {
@@ -26,7 +27,11 @@ def connect():
     if client_name in clients: 
         print("[INFO] Client already exists.")
     else:
-        clients.append({"client_name": client_name, "client_ip": client_ip})
+        clients.append({
+            "client_name": client_name, 
+            "client_ip": client_ip,
+            "client_key": client_key
+        })
 
     ## Return response to client (Flask will automatically convert Python dict to json)
     return(response)
