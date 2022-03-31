@@ -13,7 +13,7 @@ def connect():
 
     client_name = content.get("client_name") 
     client_ip   = content.get("client_ip")
-    client_key   = content.get("client_key")
+    client_key  = content.get("client_key")
 
     print(f"Connected {client_name}@{client_ip} - {client_key}") 
 
@@ -40,7 +40,3 @@ def connect():
 # main driver function
 if __name__ == '__main__':
     app.run(host="0.0.0.0", ssl_context='adhoc', debug=True)
-
-
-# test:  curl -X POST http://localhost:5000 -d '{"client_name": "client1", "client_ip": "0.0.0.0"}'
-
