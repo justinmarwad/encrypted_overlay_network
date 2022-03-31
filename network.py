@@ -13,9 +13,9 @@ def connect():
 
     client_name = content.get("client_name") 
     client_ip   = content.get("client_ip")
-    client_key  = content.get("client_key")
+    public_key  = content.get("public_key")
 
-    print(f"Connected {client_name}@{client_ip} - {client_key}") 
+    print(f"Connected {client_name}@{client_ip} - {public_key}") 
 
     ## Create response 
     response = {
@@ -30,7 +30,7 @@ def connect():
         clients.append({
             "client_name": client_name, 
             "client_ip": client_ip,
-            "client_key": client_key
+            "public_key": public_key
         })
 
     ## Return response to client (Flask will automatically convert Python dict to json)
