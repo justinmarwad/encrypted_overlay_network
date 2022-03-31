@@ -17,14 +17,20 @@ class Client:
         self.clients=[]
         self.connected_clients=[]
 
+        self.create_keys()
+        self.get_client_list()
+
+    def __del__(self):
+        self.delete_keys()
+
     def create_keys(self): 
         """ Method to create keys """ 
         output=os.popen(f"openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout {self.priv_key} -out  {self.pub_key} -subj '/CN=rick.local/'").read() 
-        print(output)
+        print(Fore.GREEN + output + Style.RESET_ALL)
 
     def delete_keys(self):
         """ Delete all keys. Run this method on exit please."""
-        print(os.popen(f"rm {self.priv_key} {self.priv_key}"))
+        print(Fore.GREEN + os.popen(f"rm {self.priv_key} {self.priv_key}")  + Style.RESET_ALL)
 
     def get_local_ip(self): 
         """ Returns the local ip address as a string.""" 
@@ -46,11 +52,15 @@ class Client:
 
         if response.status_code == 200: 
             self.clients = json.loads(response.content)["clients"]
+
+            for client in self.clients:
+                print(Fore.GREEN + f"[+] INFO | Found {client['client_name']}@{client['client_ip']}" + Style.RESET_ALL)
+
         else:
             raise Exception(f"[ERROR] Could not recieve information from the server {self.server}.")
 
         
-    def send(self, client, message="ping!"): 
+    def send(self, message="ping!"): 
         """ Method to send message to another client. """
 
         for client in self.clients: 
@@ -60,7 +70,6 @@ class Client:
                 self.connected_clients.append(client)
             
 
-            client["client_ip"] = "127.0.0.1"
             client_pub_key = f"read-{self.pub_key}"
 
             with open(client_pub_key, "wb") as f:
@@ -83,15 +92,23 @@ class Client:
                         
                         except ConnectionResetError: 
                             print(Fore.RED + f"[-] - Sender | Connection Reset." + Style.RESET_ALL)
+                            
+                        try: 
+                            data =secure_sock.recv(32).decode()
+                        except ssl.SSLError: 
+                            #print(Fore.RED + f"[-] Sender | SSL Error." + Style.RESET_ALL)
+                            self.connected_clients.remove(client)
+                            continue
 
-                        print(Fore.GREEN + f"[+] - Sender | Sent {message} and {client['client_name']}@{client['client_ip']} replied: {secure_sock.recv(32).decode()}"  + Style.RESET_ALL)
+
+                        print(Fore.MAGENTA + f"[+] - Sender | Sent {message} and {client['client_name']}@{client['client_ip']} replied: {data}"  + Style.RESET_ALL)
                         
                         secure_sock.close()
                         break 
 
-            except ssl.SSLCertVerificationError:
+            except ssl.SSLCertVerificationError or ssl.SSLError:
                 self.connected_clients.remove(client)
-                print(Fore.RED + f"[-] Sender | SSL Verification Error." + Style.RESET_ALL)
+                #print(Fore.RED + f"[-] Sender | SSL Verification Error." + Style.RESET_ALL)
                 continue 
 
     def recieve(self): 
@@ -112,7 +129,7 @@ class Client:
 
             while True:
                 self.get_client_list()
-                
+
                 for client in self.clients: 
                     try: 
                         with open(client_pub_key, "wb") as f: f.write(client["public_key"].encode("utf-8")) 
@@ -123,16 +140,15 @@ class Client:
                         context.load_verify_locations(cafile=client_pub_key)
 
                         
-                        print(Fore.BLUE + "[+] Reciever ready for connections."  + Style.RESET_ALL)
+                        print(Fore.CYAN + "[+] Reciever ready for connections."  + Style.RESET_ALL)
                         newsocket, fromaddr = bindsocket.accept()
-                        #print(f"Client connected: {fromaddr[0]}:{fromaddr[1]}")
+
                         with context.wrap_socket(newsocket, server_side=True) as secure_sock: 
-                            #print(f"RECIEVER | SSL established. Peer: {secure_sock.getpeercert()}")
                             host, port = secure_sock.getpeername()
 
                             try:
                                 data = json.loads(secure_sock.recv(4096)) 
-                                print(Fore.BLUE + f"[RECIEVER INFO] {data['client_name']}@{host} said: {data['message']}" + Style.RESET_ALL)
+                                print(Fore.BLUE + f"[+] Reciever | {data['client_name']}@{host} said: {data['message']}" + Style.RESET_ALL)
                                 secure_sock.send(str.encode("pong!"))
                             
                             finally:
@@ -140,46 +156,22 @@ class Client:
                                 secure_sock.close()
                                     
                     except ssl.SSLError or ssl.SSLCertVerificationError:
-                        print(Fore.RED + f"[ERROR] Public key of {client} did not work." + Style.RESET_ALL)
+                        #print(Fore.RED + f"[ERROR] Public key of {client} did not work." + Style.RESET_ALL)
                         continue 
 
 
- 
-def handler(signum, frame):
-    try: 
-        confirm = input(Fore.RED + "Ctrl-c was pressed. Do you really want to exit? y/n ")
-        if confirm != 'n':
-            sender.terminate() 
-            reciever.terminate()
-
-            exit(1)
-    
-    except EOFError: 
-        sender.terminate() 
-        reciever.terminate()
-        exit(1)
-
-global sender
-global reciever
-
 if __name__ == "__main__":
     client_runner = Client(name="client1")
-    client_runner.create_keys()
 
-    for client in client_runner.clients: 
-        print(f"[INFO] Found {client['client_name']}@{client['client_ip']}")
+    sender    = multiprocessing.Process(target=client_runner.send)
+    reciever  = multiprocessing.Process(target=client_runner.recieve)
+    
+    try:
+        reciever.start()
+        sender.start()
 
-        sender    = multiprocessing.Process(target=client_runner.send, args=(client, ))
-        # reciever  = multiprocessing.Process(target=client_runner.recieve)
-        
-        try:
-            # reciever.start()
-            sender.start()
-        except KeyboardInterrupt:
-            client_runner.delete_keys() 
-            # sender.terminate() 
-            # reciever.terminate()
-            exit(1)       
+    except KeyboardInterrupt:
+        exit(1)       
 
 
 
