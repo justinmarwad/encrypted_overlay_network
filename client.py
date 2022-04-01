@@ -64,53 +64,54 @@ class Client:
     def send(self, message="ping!"): 
         """ Method to send message to another client. """
 
-        for client in self.clients: 
-            for connected_client in self.connected_clients: 
-                if client["client_name"] == connected_client["client_name"]:
-                    pass #return 
-                                
+        while True:
+            for client in self.clients: 
+                for connected_client in self.connected_clients: 
+                    if client["client_name"] == connected_client["client_name"]:
+                        return 
+                                    
 
-            client_pub_key = f"read-{self.pub_key}"
+                client_pub_key = f"read-{self.pub_key}"
 
-            with open(client_pub_key, "wb") as f:
-                f.write(client["public_key"].encode("utf-8")) 
+                with open(client_pub_key, "wb") as f:
+                    f.write(client["public_key"].encode("utf-8")) 
 
-            try: 
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        
-                    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=client_pub_key)
-                    context.load_cert_chain(certfile=self.pub_key, keyfile=self.priv_key)
+                try: 
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            
+                        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=client_pub_key)
+                        context.load_cert_chain(certfile=self.pub_key, keyfile=self.priv_key)
 
-                    with context.wrap_socket(sock, server_side=False, server_hostname="rick.local") as secure_sock: 
-                        secure_sock.connect((client["client_ip"], self.port))
-        
-                        try: 
-                            secure_sock.send(str.encode(json.dumps({
-                                "message": message,
-                                "client_name": self.name 
-                            })))
-                        
-                        except ConnectionResetError: 
-                            print(Fore.RED + f"[-] - Sender | Connection Reset." + Style.RESET_ALL)
+                        with context.wrap_socket(sock, server_side=False, server_hostname="rick.local") as secure_sock: 
+                            secure_sock.connect((client["client_ip"], self.port))
+            
+                            try: 
+                                secure_sock.send(str.encode(json.dumps({
+                                    "message": message,
+                                    "client_name": self.name 
+                                })))
                             
-                        try: 
-                            data =secure_sock.recv(32).decode()
-                        except ssl.SSLError: 
-                            print(Fore.RED + f"[-] Sender | SSL Error." + Style.RESET_ALL)
-                            continue
+                            except ConnectionResetError: 
+                                print(Fore.RED + f"[-] - Sender | Connection Reset." + Style.RESET_ALL)
+                                
+                            try: 
+                               data =secure_sock.recv(4096).decode()
+                            except ssl.SSLError: 
+                                print(Fore.RED + f"[-] Sender | Buffer Recieve Error." + Style.RESET_ALL)
+                                continue
 
 
-                        print(Fore.MAGENTA + f"[+] - Sender | Sent {message} and {client['client_name']}@{client['client_ip']} replied: {data}"  + Style.RESET_ALL)
-                        
-                        secure_sock.close()
-                        self.connected_clients.append(client)
-                        break 
+                            print(Fore.MAGENTA + f"[+] - Sender | Sent {message} and {client['client_name']}@{client['client_ip']} replied: {data}"  + Style.RESET_ALL)
+                            
+                            secure_sock.close()
+                            self.connected_clients.append(client)
+                            break 
 
-            except ssl.SSLCertVerificationError or ssl.SSLError:
-                print(Fore.RED + f"[-] Sender | SSL Verification Error." + Style.RESET_ALL)
-                continue 
+                except ssl.SSLCertVerificationError or ssl.SSLError:
+                    print(Fore.RED + f"[-] Sender | SSL Verification Error." + Style.RESET_ALL)
+                    continue 
 
-            self.connected_clients.append(client)
+                self.connected_clients.append(client)
 
     def recieve(self): 
         """ Method to recieve message from another client. """
