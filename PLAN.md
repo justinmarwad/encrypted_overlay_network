@@ -1,7 +1,7 @@
 
 # General Plan
 
-Split the projet into six parts and each of us will take two parts. Deadline to finish the parts will be by Monday and then we can spend the days after putting things together and testing before the Friday submission date. 
+Split the projet into three parts and each of us will take a part. Deadline to finish the parts will be by Monday and then we can spend the days after putting things together and testing before the Friday submission date. 
 
 
 1. Finish client.py (Nandan due by Tuesday 6:30 PM)
