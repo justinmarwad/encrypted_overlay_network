@@ -1,7 +1,8 @@
 import socket, requests, json, ssl, json, random  
 import os, string, multiprocessing, signal
 from colorama import Fore, Style
-
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 ## OUR CLIENT CODE ## 
 class Client: 
@@ -64,11 +65,10 @@ class Client:
         """ Method to send message to another client. """
 
         for client in self.clients: 
-            if client in self.connected_clients: 
-                return 
-            else: 
-                self.connected_clients.append(client)
-            
+            for connected_client in self.connected_clients: 
+                if client["client_name"] == connected_client["client_name"]:
+                    pass #return 
+                                
 
             client_pub_key = f"read-{self.pub_key}"
 
@@ -96,20 +96,21 @@ class Client:
                         try: 
                             data =secure_sock.recv(32).decode()
                         except ssl.SSLError: 
-                            #print(Fore.RED + f"[-] Sender | SSL Error." + Style.RESET_ALL)
-                            self.connected_clients.remove(client)
+                            print(Fore.RED + f"[-] Sender | SSL Error." + Style.RESET_ALL)
                             continue
 
 
                         print(Fore.MAGENTA + f"[+] - Sender | Sent {message} and {client['client_name']}@{client['client_ip']} replied: {data}"  + Style.RESET_ALL)
                         
                         secure_sock.close()
+                        self.connected_clients.append(client)
                         break 
 
             except ssl.SSLCertVerificationError or ssl.SSLError:
-                self.connected_clients.remove(client)
-                #print(Fore.RED + f"[-] Sender | SSL Verification Error." + Style.RESET_ALL)
+                print(Fore.RED + f"[-] Sender | SSL Verification Error." + Style.RESET_ALL)
                 continue 
+
+            self.connected_clients.append(client)
 
     def recieve(self): 
         """ Method to recieve message from another client. """
