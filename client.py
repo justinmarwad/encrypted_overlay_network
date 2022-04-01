@@ -53,8 +53,8 @@ class Client:
         if response.status_code == 200: 
             self.clients = json.loads(response.content)["clients"]
 
-            for client in self.clients:
-                print(Fore.GREEN + f"[+] INFO | Found {client['client_name']}@{client['client_ip']}" + Style.RESET_ALL)
+            # for client in self.clients:
+            #     print(Fore.GREEN + f"[+] INFO | Found {client['client_name']}@{client['client_ip']}" + Style.RESET_ALL)
 
         else:
             raise Exception(f"[ERROR] Could not recieve information from the server {self.server}.")
