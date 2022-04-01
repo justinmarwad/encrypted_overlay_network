@@ -165,7 +165,8 @@ class Client:
 
 
 if __name__ == "__main__":
-    client_runner = Client(name="client1")
+    # change name and server address before running new client 
+    client_runner = Client(name="client1", server="https://127.0.0.1:5000")
 
     sender    = multiprocessing.Process(target=client_runner.send)
     reciever  = multiprocessing.Process(target=client_runner.recieve)
