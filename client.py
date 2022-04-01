@@ -6,7 +6,7 @@ from colorama import Fore, Style
 ## OUR CLIENT CODE ## 
 class Client: 
     """ Main client code..."""
-    def __init__(self, name="Rick_Astley", certfile=None, keyfile=None, port=9090, server="https://127.0.0.1:5000"): 
+    def __init__(self, name="Rick_Astley", server="https://127.0.0.1:5000", port=9090): 
         self.name=name
         self.pub_key=f"public-{''.join(random.choices(string.ascii_lowercase, k=5))}.crt"
         self.priv_key=f"private-{''.join(random.choices(string.ascii_lowercase, k=5))}.key"
@@ -131,33 +131,35 @@ class Client:
                 self.get_client_list()
 
                 for client in self.clients: 
-                    try: 
-                        with open(client_pub_key, "wb") as f: f.write(client["public_key"].encode("utf-8")) 
+                    if client["client_name"] != self.name:
 
-                        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-                        context.verify_mode = ssl.CERT_REQUIRED
-                        context.load_cert_chain(certfile=self.pub_key, keyfile=self.priv_key)
-                        context.load_verify_locations(cafile=client_pub_key)
+                        try: 
+                            with open(client_pub_key, "wb") as f: f.write(client["public_key"].encode("utf-8")) 
 
-                        
-                        print(Fore.CYAN + "[+] Reciever ready for connections."  + Style.RESET_ALL)
-                        newsocket, fromaddr = bindsocket.accept()
+                            context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+                            context.verify_mode = ssl.CERT_REQUIRED
+                            context.load_cert_chain(certfile=self.pub_key, keyfile=self.priv_key)
+                            context.load_verify_locations(cafile=client_pub_key)
 
-                        with context.wrap_socket(newsocket, server_side=True) as secure_sock: 
-                            host, port = secure_sock.getpeername()
-
-                            try:
-                                data = json.loads(secure_sock.recv(4096)) 
-                                print(Fore.BLUE + f"[+] Reciever | {data['client_name']}@{host} said: {data['message']}" + Style.RESET_ALL)
-                                secure_sock.send(str.encode("pong!"))
                             
-                            finally:
-                                secure_sock.shutdown(socket.SHUT_RDWR)
-                                secure_sock.close()
-                                    
-                    except ssl.SSLError or ssl.SSLCertVerificationError:
-                        #print(Fore.RED + f"[ERROR] Public key of {client} did not work." + Style.RESET_ALL)
-                        continue 
+                            print(Fore.CYAN + "[+] Reciever ready for connections."  + Style.RESET_ALL)
+                            newsocket, fromaddr = bindsocket.accept()
+
+                            with context.wrap_socket(newsocket, server_side=True) as secure_sock: 
+                                host, port = secure_sock.getpeername()
+
+                                try:
+                                    data = json.loads(secure_sock.recv(4096)) 
+                                    print(Fore.BLUE + f"[+] Reciever | {data['client_name']}@{host} said: {data['message']}" + Style.RESET_ALL)
+                                    secure_sock.send(str.encode("pong!"))
+                                
+                                finally:
+                                    secure_sock.shutdown(socket.SHUT_RDWR)
+                                    secure_sock.close()
+                                        
+                        except ssl.SSLError or ssl.SSLCertVerificationError:
+                            #print(Fore.RED + f"[ERROR] Public key of {client} did not work." + Style.RESET_ALL)
+                            continue 
 
 
 if __name__ == "__main__":
