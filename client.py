@@ -60,16 +60,13 @@ class Client:
         else:
             raise Exception(f"[ERROR] Could not recieve information from the server {self.server}.")
 
-        
+         
     def send(self, message="ping!"): 
         """ Method to send message to another client. """
 
         while True:
             for client in self.clients: 
-                for connected_client in self.connected_clients: 
-                    if client["client_name"] == connected_client["client_name"]:
-                        return 
-                                    
+                                                   
 
                 client_pub_key = f"read-{self.pub_key}"
 
@@ -142,6 +139,9 @@ class Client:
                             context.verify_mode = ssl.CERT_REQUIRED
                             context.load_cert_chain(certfile=self.pub_key, keyfile=self.priv_key)
                             context.load_verify_locations(cafile=client_pub_key)
+                            context.options |= ssl.OP_NO_TLSv1
+                            context.options |= ssl.OP_NO_TLSv1_1
+                            context.options |= ssl.OP_NO_TLSv1_2
 
                             
                             print(Fore.CYAN + "[+] Reciever ready for connections."  + Style.RESET_ALL)
