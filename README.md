@@ -2,8 +2,8 @@
 
 Project #1 for the Advanced Network Security course at the University of Massachusetts Lowell. The members of this project are: 
 
-1. Justin
-2. Manoj 
+1. Justin Marwad
+2. Manoj Sarma Yeddanapudi
 2. Nandan 
 
 # General Overview 
